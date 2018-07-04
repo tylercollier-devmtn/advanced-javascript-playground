@@ -1,30 +1,67 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import request from 'superagent';
+
+function turnCallbackIntoPromise(fn) {
+  return function(...args) {
+    return new Promise((resolve, reject) => {
+      fn(...args, (err, response) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(response);
+      })
+    })
+  }
+}
+
+function superAgentGet(url, callback) {
+  return request.get(url).end(callback)
+}
+
+function doRequest(url) {
+  return new Promise((resolve, reject) => {
+    request.get(url).end((err, response) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(response);
+    })
+  })
+}
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      counter: 0,
-      counter2: 0,
+      message: 'hello, happy 4th'
     };
   }
 
-  increment = () => {
-    // this.setState({ counter: this.state.counter + 1 })
-    // this.incrementBy5()
-    // this.setState(prevState => {
-    //   return { counter: prevState.counter + 1 }
-    // })
-    this.setState(prevState => ({ counter: prevState.counter + 1 }))
-    // this.setState(prevState => {
-    //   return { counter: prevState.counter + 1 }
-    // })
-  }
+  componentDidMount() {
+    // doRequest('https://swapi.co/api/people/1').then(response => {
+    //   this.setState({ message: 'The data from swapi is: ' + response.body.name });
+    // }).catch(error => {
+    //   this.setState({ message: 'Got an error: ' + error.message });
+    // });
 
-  incrementBy5 = () => {
-    this.setState({ counter: this.state.counter + 5 })
+
+    // superAgentGet('https://swapi.co/api/people/1', (error, response) => {
+    //   if (error) {
+    //     this.setState({ message: 'Got an error: ' + error.message });
+    //     return;
+    //   }
+    //   this.setState({ message: 'The data from swapi is: ' + response.body.name });
+    // });
+    const superAgentGetWithPromise = turnCallbackIntoPromise(superAgentGet);
+    superAgentGetWithPromise('https://swapi.co/api/people/1').then(response => {
+      this.setState({ message: 'The data from swapi is: ' + response.body.name });
+    }).catch(error => {
+      this.setState({ message: 'Got an error: ' + error.message });
+    });
   }
   
   render() {
@@ -37,9 +74,7 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
-        <button onClick={this.increment}>Click me</button>
-        <div>Counter value: {this.state.counter}</div>
-        <div>Counter2 value: {this.state.counter2}</div>
+        <div>Message: {this.state.message}</div>
       </div>
     );
   }
