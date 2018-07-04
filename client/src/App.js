@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import request from 'superagent';
+import PromiseDemo from './PromiseDemo';
 
 function turnCallbackIntoPromise(fn) {
   return function(...args) {
@@ -75,6 +76,7 @@ class App extends Component {
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
         <div>Message: {this.state.message}</div>
+        <PromiseDemo />
       </div>
     );
   }
